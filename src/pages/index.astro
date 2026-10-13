@@ -1,11 +1,468 @@
----
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+---
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101010" />
+    <meta
+      name="description"
+      content="Download publicly accessible Reddit videos as MP4 with RedditSave."
+    />
+    <title>RedditSave — Reddit Video Downloader</title>
+
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: #101010;
+        color: #f5f5f5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav {
+        max-width: 1120px;
+        margin: auto;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -1px;
+      }
+
+      .brand span,
+      h1 span {
+        color: #ff6548;
+      }
+
+      .nav-note {
+        color: #999;
+        font-size: 13px;
+      }
+
+      .hero {
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 90px 24px 70px;
+        text-align: center;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 13px;
+        border: 1px solid #303030;
+        border-radius: 100px;
+        color: #ccc;
+        font-size: 12px;
+        background: #181818;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #ff6548;
+      }
+
+      h1 {
+        margin: 25px 0 18px;
+        font-size: clamp(38px, 7vw, 66px);
+        line-height: 1.05;
+        letter-spacing: -3px;
+      }
+
+      h1 span {
+        background: linear-gradient(90deg, #ff593d, #ff9368);
+        color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        max-width: 590px;
+        margin: 0 auto;
+        color: #a1a1a1;
+        line-height: 1.8;
+        font-size: 16px;
+      }
+
+      .downloader {
+        margin: 35px auto 0;
+        max-width: 700px;
+        padding: 8px;
+        display: flex;
+        gap: 8px;
+        background: #1b1b1b;
+        border: 1px solid #353535;
+        border-radius: 16px;
+        box-shadow: 0 20px 70px #0005;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 17px 15px;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: #fff;
+        font: inherit;
+      }
+
+      input::placeholder {
+        color: #707070;
+      }
+
+      input:focus-visible {
+        outline: 1px solid #ff6548;
+        border-radius: 8px;
+      }
+
+      button {
+        padding: 0 23px;
+        border: 0;
+        border-radius: 11px;
+        background: #ff593d;
+        color: white;
+        font-weight: 750;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+      }
+
+      button:hover {
+        background: #ff7159;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .status {
+        min-height: 24px;
+        margin-top: 17px;
+        color: #aaa;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .status.error {
+        color: #ff806d;
+      }
+
+      .status.success {
+        color: #8ee0ad;
+      }
+
+      .section {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 30px 24px 75px;
+      }
+
+      .section h2 {
+        text-align: center;
+        font-size: 25px;
+        letter-spacing: -0.7px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .card {
+        padding: 24px;
+        border: 1px solid #2d2d2d;
+        border-radius: 15px;
+        background: #171717;
+      }
+
+      .number {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: #2b1c19;
+        color: #ff765f;
+        font-weight: 800;
+      }
+
+      .card h3 {
+        margin: 18px 0 9px;
+        font-size: 16px;
+      }
+
+      .card p {
+        margin: 0;
+        color: #999;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .notice {
+        margin: 28px auto 0;
+        max-width: 720px;
+        text-align: center;
+        color: #888;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      footer {
+        padding: 25px;
+        border-top: 1px solid #292929;
+        text-align: center;
+        color: #777;
+        font-size: 12px;
+      }
+
+      @media (max-width: 650px) {
+        .hero {
+          padding-top: 65px;
+        }
+
+        h1 {
+          letter-spacing: -2px;
+        }
+
+        .downloader {
+          flex-direction: column;
+          padding: 8px;
+        }
+
+        input {
+          padding: 16px 12px;
+        }
+
+        button {
+          min-height: 52px;
+        }
+
+        .cards {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-note {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="nav">
+      <a class="brand" href="/">Reddit<span>Save</span></a>
+      <div class="nav-note">Simple. Fast. No installation.</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="pill">
+          <span class="dot"></span>
+          REDDIT VIDEO DOWNLOADER
+        </div>
+
+        <h1>Save Reddit videos.<br /><span>Keep the moment.</span></h1>
+
+        <p class="subtitle">
+          Paste a link to a publicly accessible Reddit video and save it as an
+          MP4. No software installation required.
+        </p>
+
+        <form class="downloader" id="download-form">
+          <input
+            id="reddit-url"
+            type="url"
+            placeholder="Paste your Reddit video link here..."
+            aria-label="Reddit video URL"
+            autocomplete="url"
+            required
+          />
+          <button id="download-button" type="submit">
+            Download video ↗
+          </button>
+        </form>
+
+        <div id="status" class="status" role="status" aria-live="polite">
+          Paste a Reddit post or video link to get started.
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Download in three simple steps</h2>
+
+        <div class="cards">
+          <article class="card">
+            <div class="number">01</div>
+            <h3>Copy the Reddit link</h3>
+            <p>Open the post containing the video and copy its URL.</p>
+          </article>
+
+          <article class="card">
+            <div class="number">02</div>
+            <h3>Paste it above</h3>
+            <p>Insert the link into the downloader and select Download video.</p>
+          </article>
+
+          <article class="card">
+            <div class="number">03</div>
+            <h3>Save your video</h3>
+            <p>If the video is available, your browser will download the MP4.</p>
+          </article>
+        </div>
+
+        <p class="notice">
+          RedditSave is an independent utility and is not affiliated with
+          Reddit. Only download content you have permission to save. Availability
+          depends on the original post and Reddit's access restrictions.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      © {new Date().getFullYear()} RedditSave. An independent video utility.
+    </footer>
+
+    <script>
+      const form = document.querySelector<HTMLFormElement>("#download-form");
+      const input = document.querySelector<HTMLInputElement>("#reddit-url");
+      const button =
+        document.querySelector<HTMLButtonElement>("#download-button");
+      const status =
+        document.querySelector<HTMLDivElement>("#status");
+
+      if (!form || !input || !button || !status) {
+        throw new Error("RedditSave form elements were not found.");
+      }
+
+      form.addEventListener("submit", async (event: SubmitEvent) => {
+        event.preventDefault();
+
+        const url = input.value.trim();
+
+        let parsedUrl: URL;
+
+        try {
+          parsedUrl = new URL(url);
+        } catch {
+          status.textContent = "Please enter a valid Reddit link.";
+          status.className = "status error";
+          return;
+        }
+
+        const allowedHosts = [
+          "reddit.com",
+          "www.reddit.com",
+          "old.reddit.com",
+          "redd.it",
+          "www.redd.it",
+          "v.redd.it",
+        ];
+
+        if (
+          parsedUrl.protocol !== "https:" ||
+          !allowedHosts.includes(parsedUrl.hostname.toLowerCase())
+        ) {
+          status.textContent = "Please enter a valid Reddit URL.";
+          status.className = "status error";
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Processing...";
+        status.textContent = "Fetching your video. Please wait.";
+        status.className = "status";
+
+        let objectUrl: string | undefined;
+
+        try {
+          const response = await fetch("/api/download", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ url: parsedUrl.href }),
+});
+
+          if (!response.ok) {
+            const result: { error?: string } = await response
+              .json()
+              .catch(() => ({}));
+
+            throw new Error(
+              result.error || `Download failed (${response.status}).`
+            );
+          }
+
+          const blob = await response.blob();
+
+          if (blob.size === 0) {
+            throw new Error("The downloaded video is empty.");
+          }
+
+          objectUrl = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = objectUrl;
+          link.download = "reddit-video.mp4";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          status.textContent = "Your download has started!";
+          status.className = "status success";
+        } catch (error: unknown) {
+          status.textContent =
+            error instanceof Error
+              ? error.message
+              : "Something went wrong. Please try again.";
+
+          status.className = "status error";
+        } finally {
+          if (objectUrl !== undefined) {
+  const urlToRevoke = objectUrl;
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(urlToRevoke);
+  }, 1000);
+}
+
+          button.disabled = false;
+          button.textContent = "Download video ↗";
+        }
+      });
+    </script>
+  </body>
+</html>
